@@ -1,0 +1,103 @@
+#include <iostream>
+#include <vector>
+#include <ctime>
+#include <iomanip>
+
+using namespace std;
+
+struct EnvironmentData {
+    float temperature;
+    float humidity;
+    int aqi;
+    time_t timestamp;
+};
+
+string classifyAQI(int aqi) {
+    if (aqi <= 50) return "Good";
+    else if (aqi <= 100) return "Moderate";
+    else if (aqi <= 150) return "Unhealthy for Sensitive Groups";
+    else if (aqi <= 200) return "Unhealthy";
+    else if (aqi <= 300) return "Very Unhealthy";
+    else return "Hazardous";
+}
+
+void logData(vector<EnvironmentData> &log) {
+    EnvironmentData data;
+    cout << "Enter temperature (°C): ";
+    cin >> data.temperature;
+    cout << "Enter humidity (%): ";
+    cin >> data.humidity;
+    cout << "Enter Air Quality Index (AQI): ";
+    cin >> data.aqi;
+
+    data.timestamp = time(0);
+    log.push_back(data);
+
+    cout << " Data logged successfully.\n";
+}
+
+void displayLog(const vector<EnvironmentData> &log) {
+    cout << "\n Environment Log:\n";
+    cout << left << setw(20) << "Time" << setw(15) << "Temp (°C)" 
+         << setw(15) << "Humidity (%)" << setw(10) << "AQI" << "Status\n";
+
+    for (const auto &entry : log) {
+        char *dt = ctime(&entry.timestamp);
+        dt[strlen(dt) - 1] = '\0'; // Remove newline
+        cout << left << setw(20) << dt
+             << setw(15) << entry.temperature
+             << setw(15) << entry.humidity
+             << setw(10) << entry.aqi
+             << classifyAQI(entry.aqi) << endl;
+    }
+}
+
+void summaryReport(const vector<EnvironmentData> &log) {
+    if (log.empty()) {
+        cout << "No data logged yet.\n";
+        return;
+    }
+
+    float avgTemp = 0, avgHumidity = 0;
+    int highAQI = 0;
+    for (const auto &entry : log) {
+        avgTemp += entry.temperature;
+        avgHumidity += entry.humidity;
+        if (entry.aqi > highAQI)
+            highAQI = entry.aqi;
+    }
+
+    avgTemp /= log.size();
+    avgHumidity /= log.size();
+
+    cout << "\n Summary Report:\n";
+    cout << "Average Temperature: " << avgTemp << " °C\n";
+    cout << "Average Humidity: " << avgHumidity << " %\n";
+    cout << "Worst Air Quality Index: " << highAQI 
+         << " (" << classifyAQI(highAQI) << ")\n";
+}
+
+int main() {
+    vector<EnvironmentData> log;
+    int choice;
+
+    do {
+        cout << "\n Environmental Monitoring System\n";
+        cout << "1. Log Environmental Data\n";
+        cout << "2. View Log\n";
+        cout << "3. Summary Report\n";
+        cout << "0. Exit\n";
+        cout << "Select an option: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: logData(log); break;
+            case 2: displayLog(log); break;
+            case 3: summaryReport(log); break;
+            case 0: cout << "Exiting program. Goodbye!\n"; break;
+            default: cout << "Invalid option. Try again.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
