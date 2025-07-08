@@ -1,0 +1,33 @@
+// Soil Moisture Sensor Monitoring System
+const int moisturePin = A0; // Analog input pin for moisture sensor
+const int dryThreshold = 300; // Below this = dry soil
+const int wetThreshold = 700; // Above this = very wet
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(moisturePin, INPUT);
+  Serial.println(" Soil Moisture Monitor Initialized");
+}
+
+void loop() {
+  int sensorValue = analogRead(moisturePin);
+
+  // Map sensor value (0-1023) to moisture % (0-100)
+  int moisturePercent = map(sensorValue, 1023, 0, 0, 100); // Invert for wet = high %
+
+  Serial.print("Soil Moisture Level: ");
+  Serial.print(moisturePercent);
+  Serial.println("%");
+
+  if (sensorValue < dryThreshold) {
+    Serial.println(" Soil is too dry. Consider watering.");
+  } else if (sensorValue > wetThreshold) {
+    Serial.println(" Soil is too wet. Avoid overwatering.");
+  } else {
+    Serial.println(" Soil moisture is optimal.");
+  }
+
+  Serial.println("-----------------------------------");
+  delay(2000); // Delay for readability
+}
+
